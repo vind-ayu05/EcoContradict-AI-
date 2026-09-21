@@ -113,7 +113,7 @@ PORT=3000
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open https://ecocontradict-ai-818323769165.asia-southeast1.run.app  in your browser.
 
 ---
 
