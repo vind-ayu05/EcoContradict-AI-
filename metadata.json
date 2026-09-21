@@ -1,0 +1,6 @@
+{
+  "name": "EcoContradict AI",
+  "description": "Find sustainability problems before they happen by detecting contradictions between goals and planned actions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

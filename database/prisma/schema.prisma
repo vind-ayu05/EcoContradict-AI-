@@ -1,0 +1,130 @@
+// Prisma schema for EcoContradict AI
+// Database: SQLite (easily migratable to PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  createdAt DateTime   @default(now())
+  analyses  Analysis[]
+}
+
+model Analysis {
+  id             String             @id @default(uuid())
+  userId         String?
+  user           User?              @relation(fields: [userId], references: [id])
+  title          String
+  description    String?
+  planText       String
+  location       String?
+  duration       String?
+  participants   Int?
+  primarySDG     String             @default("SDG 12 — Responsible Consumption and Production")
+  score          Int                @default(0)
+  riskLevel      String             @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status         String             @default("COMPLETED") // PENDING, PROCESSING, COMPLETED, FAILED
+  aiProvider     String             @default("Demo Engine (Rule-based)")
+  aiConfidence   Float              @default(0.92)
+  categories     String             // JSON string array of active categories
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  goals          AnalysisGoal[]
+  activities     DetectedActivity[]
+  contradictions Contradiction[]
+  impactEstimate ImpactEstimate?
+  reports        Report[]
+}
+
+model AnalysisGoal {
+  id          String   @id @default(uuid())
+  analysisId  String
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  goalText    String
+  sdgTag      String?
+  targetDate  String?
+  createdAt   DateTime @default(now())
+}
+
+model DetectedActivity {
+  id          String   @id @default(uuid())
+  analysisId  String
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  name        String
+  category    String   // Waste, Water, Energy, Transportation, Materials, Consumption
+  riskLevel   String   // LOW, MEDIUM, HIGH
+  description String
+  quantity    String?
+  createdAt   DateTime @default(now())
+}
+
+model Contradiction {
+  id              String           @id @default(uuid())
+  analysisId      String
+  analysis        Analysis         @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  goal            String
+  action          String
+  category        String           // Waste, Water, Energy, Transportation, Materials, Consumption
+  severity        String           // LOW, MEDIUM, HIGH, CRITICAL
+  explanation     String
+  confidence      Float            @default(0.9)
+  potentialImpact String
+  createdAt       DateTime         @default(now())
+
+  recommendations Recommendation[]
+}
+
+model Recommendation {
+  id              String        @id @default(uuid())
+  contradictionId String
+  contradiction   Contradiction @relation(fields: [contradictionId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  priority        String        // HIGH, MEDIUM, LOW
+  alternative     String
+  expectedSavings String?
+  co2ReductionKg  Float?
+  wasteReductionKg Float?
+  applied         Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+}
+
+model ImpactEstimate {
+  id                     String   @id @default(uuid())
+  analysisId             String   @unique
+  analysis               Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  wasteReduction         String   // e.g. "85% (approx 120kg diverted)"
+  energyReduction        String   // e.g. "40% (approx 350 kWh saved)"
+  waterReduction         String   // e.g. "65% (approx 2,100 liters conserved)"
+  carbonReduction        String?  // e.g. "1.4 metric tons CO2e avoided"
+  estimatedOverallImpact String   // HIGH, MEDIUM, LOW
+  methodologyNotes       String?
+  createdAt              DateTime @default(now())
+}
+
+model Report {
+  id           String   @id @default(uuid())
+  analysisId   String
+  analysis     Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  title        String
+  summary      String
+  contentJson  String
+  format       String   @default("JSON")
+  generatedAt  DateTime @default(now())
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique // Waste, Water, Energy, Transportation, Materials, Consumption
+  icon        String
+  description String
+}

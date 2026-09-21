@@ -1,0 +1,13 @@
+[
+  {
+    "id": "fb-1789748173691",
+    "analysisId": "seed-hackathon-01",
+    "contradictionId": "c-1",
+    "userId": "user-standard-01",
+    "type": "CONTRADICTION_ACCURACY",
+    "rating": 5,
+    "vote": "UP",
+    "comment": "Accurate finding",
+    "createdAt": "2026-09-18T16:16:13.691Z"
+  }
+]
